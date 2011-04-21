@@ -1,43 +1,53 @@
+// gcc -Wall -o simple_terminal{,.c} -lcurses
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include <features.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <signal.h>
 #include <sys/wait.h>
 
-char *
-rte_ptsname (int master)
+int
+get_pty (int ptmx)
 {
-	int len = 1024;
-	char *buf = NULL;
+	char buf[32];
 
-	buf = calloc (1, len);
-	if (ptsname_r (master, buf, len - 1) || grantpt (master) || unlockpt (master)) {
-		free (buf);
-		buf = NULL;
+	memset (buf, 0, sizeof (buf));
+
+	// get the name of the pseudo-terminal and get permission to use it
+	ptsname_r (ptmx, buf, sizeof (buf) - 1);
+	grantpt (ptmx);
+	unlockpt (ptmx);
+
+	return open (buf, O_RDWR | O_NONBLOCK);
+}
+
+void
+send_command (int fd, char *command)
+{
+	int count;
+	static char read_buf[1024];
+
+	// send command to shell
+	write (fd, command, strlen (command));
+	write (fd, "\n", 1);
+
+	// wait for a response
+	usleep (500000);
+	while ((count = read (fd, read_buf, sizeof (read_buf))) != -1) {
+		write (STDOUT_FILENO, read_buf, count);
 	}
-
-	return buf;
 }
 
 int
 main (int argc, char *argv[])
 {
 	int fd = -1;
-	char *buf = NULL;
-	int pid = -1;
 	int fd2 = -1;
-	char read_buf[1024];
-	int count;
-	char *cmd = NULL;
+	int pid = -1;
 
 	fd = getpt();
 	fcntl (fd, F_SETFL, O_NONBLOCK);
@@ -48,50 +58,33 @@ main (int argc, char *argv[])
 			printf ("fork failed\n");
 			break;
 		case 0: /* child */
-			/* Start a new session and become process-group leader. */
-			if ((buf = rte_ptsname (fd)) == NULL) {
-				close (fd);
-				break;
-			}
+			fd2 = get_pty (fd);
+			close (fd);
 
-			fd2 = open (buf, O_RDWR | O_NONBLOCK);
-			free (buf);
-
-			setsid();
+			setsid();			// set up the session and the processs group
 			setpgid (0, 0);
 
-			/* TIOCSCTTY is defined?  Let's try that, too. */
-			ioctl (fd2, TIOCSCTTY, 0);
+			ioctl (fd2, TIOCSCTTY, 0);	// set controlling tty
 
-			dup2 (fd2, STDIN_FILENO);
+			dup2 (fd2, STDIN_FILENO);	// use the pty for our stdin,stdout,stderr
 			dup2 (fd2, STDOUT_FILENO);
 			dup2 (fd2, STDERR_FILENO);
 
-			close (fd);
 			close (fd2);
 
 			execl ("/bin/bash", "bash", "--norc", "--noprofile", NULL);
 			break;
 		default: /* parent */
-			cmd = "set\n";
-			write (fd, cmd, strlen (cmd));
-			sleep (1);
-			while ((count = read (fd, read_buf, sizeof (read_buf))) != -1) {
-				write (STDOUT_FILENO, read_buf, count);
-			}
-#if 1
-			cmd = "exit\n";
-			write (fd, cmd, strlen (cmd));
-			sleep (1);
-			while ((count = read (fd, read_buf, sizeof (read_buf))) != -1) {
-				write (STDOUT_FILENO, read_buf, count);
-			}
-#else
-			printf ("kill %d\n", pid);
-			kill (pid, SIGTERM);
-#endif
+			send_command (fd, "ls -l");
+
+			// two ways to finish
+			if (1)
+				kill (pid, SIGTERM);
+			else
+				send_command (fd, "exit");
+
 			close (fd);
-			waitpid (pid, NULL, 0);	// 0 or WNOHANG
+			waitpid (pid, NULL, 0);		// 0 or WNOHANG
 			break;
 	}
 
