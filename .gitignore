@@ -1,5 +1,6 @@
 # build products
 /rte
+/simple_terminal
 /window_resize
 
 # junk
