@@ -1,14 +1,14 @@
 CC	= gcc
-PKG	= rte
+PROGS	= rte window_resize
 CFLAGS	= -g -Wall
 
-#CFLAGS  += `pkg-config gtk+-2.0 --cflags`
-#LDFLAGS += `pkg-config gtk+-2.0 --libs`
+CFLAGS  += `pkg-config ncurses --cflags`
+LDFLAGS += `pkg-config ncurses --libs`
 
-all:	$(PKG)
+all:	$(PROGS)
 
 clean:
-	$(RM) $(PKG) tags
+	$(RM) $(PROGS) tags
 
 tags:
 	ctags *.[ch]
