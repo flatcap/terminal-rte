@@ -10,6 +10,9 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 
+/**
+ * get_pty
+ */
 int
 get_pty (int ptmx)
 {
@@ -25,6 +28,9 @@ get_pty (int ptmx)
 	return open (buf, O_RDWR | O_NONBLOCK);
 }
 
+/**
+ * send_command
+ */
 void
 send_command (int fd, char *command)
 {
@@ -42,6 +48,9 @@ send_command (int fd, char *command)
 	}
 }
 
+/**
+ * main
+ */
 int
 main (int argc, char *argv[])
 {
