@@ -282,19 +282,23 @@ main (int argc, char *argv[])
 	switch (pid) {
 		case -1:
 			printf ("fork failed\n");
-		case 0: /* child */
+		/* child */
+		case 0:
 			/* Start a new session and become process-group leader. */
 			fd2 = open (buf, O_RDWR | O_NONBLOCK);
 			printf ("child fd = %s, %d\n", buf, fd);
-
-			//signal (SIGPIPE, SIG_DFL);
+			free (buf);
+#if 0
+			signal (SIGPIPE, SIG_DFL);
+			signal (SIGTERM, SIG_DFL);
+#endif
 #if 1
 			setsid();
 			setpgid (0, ppid);
 #endif
 
 			/* TIOCSCTTY is defined?  Let's try that, too. */
-			ioctl (fd2, TIOCSCTTY, fd2);
+			ioctl (fd2, TIOCSCTTY, 0);
 
 			//vte_pty_child_setup (pty);
 			/* now setup child I/O through the tty */
@@ -313,14 +317,17 @@ main (int argc, char *argv[])
 					return 1;
 				}
 			}
-			//close (fd);
-			//close (fd2);
+			printf ("child close %d\n", fd);
+			close (fd);
+			printf ("child close %d\n", fd2);
+			close (fd2);
 			printf ("child ok\n");
 
-			execl ("/home/terminal/readline/bash-4.2/rash", "rash", NULL);
+			execl ("/home/terminal/readline/bash-4.2/rash", "RASH", NULL);
 			perror ("execl");
 			break;
-		default: /* parent */
+		/* parent */
+		default:
 			memset (&sig_new, 0, sizeof (sig_new));
 			memset (&sig_old, 0, sizeof (sig_old));
 
@@ -354,7 +361,7 @@ main (int argc, char *argv[])
 			}
 #endif
 
-			sleep (2);
+			sleep (1);
 			close (fd);
 #if 0
 			printf ("exit\n");
@@ -365,7 +372,7 @@ main (int argc, char *argv[])
 			}
 #else
 			printf ("kill %d\n", pid);
-			kill (pid, SIGPIPE);
+			kill (pid, SIGTERM);
 #endif
 			printf ("wait for child to die\n");
 			//sleep (300);	// interrupted by signal
