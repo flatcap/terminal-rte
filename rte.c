@@ -138,6 +138,21 @@ rte_sig_child (int sig, siginfo_t *info, void *context)
 	printf ("SIGCHLD - child dead?\n");
 }
 
+/**
+ * rte_clean_env
+ */
+void
+rte_clean_env (void)
+{
+	const char *names[] = { "BZIP2", "CDPATH", "EDITOR", "FIGNORE", "GREP_COLOR", "GREP_OPTIONS", "GZIP", "HISTCONTROL", "HISTFILE", "HISTFILESIZE", "HISTIGNORE", "HISTSIZE", "HTML_TIDY", "INPUTRC", "KBUILD_VERBOSE", "LESS", "LESSCHARSET", "LESS_TERMCAP_mb", "LESS_TERMCAP_md", "LESS_TERMCAP_me", "LESS_TERMCAP_se", "LESS_TERMCAP_so", "LESS_TERMCAP_ue", "LESS_TERMCAP_us", "LS_COLORS", "MAKEFLAGS", "PAGER", "PATH", "PROMPT_COMMAND", "PS1", "TZ", "WINDOWMANAGER", "WORK_DIR", "WWW_HOME", "XZ_OPT", NULL };
+	const char **ptr = names;
+
+	for (; *ptr; ptr++) {
+		//printf ("unset %s\n", *ptr);
+		unsetenv (*ptr);
+	}
+}
+
 
 #ifdef wibble
 /**
@@ -325,7 +340,9 @@ main (int argc, char *argv[])
 			close (fd2);
 			printf ("child ok\n");
 
-			execl ("/home/terminal/readline/bash-4.2/rash", "RASH", NULL);
+			rte_clean_env();
+
+			execl ("/home/terminal/readline/bash-4.2/rash", "RASH", "--norc", "--noprofile", NULL);
 			perror ("execl");
 			break;
 		/* parent */
@@ -343,6 +360,7 @@ main (int argc, char *argv[])
 			//fd2 = open (buf, O_RDWR | O_NONBLOCK);
 			//printf ("parent fd = %s, %d\n", buf, fd);
 			//sleep (5);
+#if 0
 			for (i = 0; i < 3; i++) {
 				count = write (fd, "ls\n", 3);
 				printf ("write = %d\n", count);
@@ -352,6 +370,7 @@ main (int argc, char *argv[])
 					write (STDOUT_FILENO, read_buf, count);
 				}
 			}
+#endif
 			//printf ("starting vim\n");
 			//count = write (fd, "vim $RANDOM.txt\n", 16);
 #if 0
