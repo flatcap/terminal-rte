@@ -136,6 +136,24 @@ void
 rte_sig_child (int sig, siginfo_t *info, void *context)
 {
 	printf ("SIGCHLD - child dead?\n");
+#if 0
+	printf ("si_signo    = %d\n",  info->si_signo);		/* Signal number */
+	printf ("si_errno    = %d\n",  info->si_errno);		/* An errno value */
+	printf ("si_code     = %d\n",  info->si_code);		/* Signal code */
+	printf ("si_pid      = %d\n",  info->si_pid);		/* Sending process ID */
+	printf ("si_uid      = %d\n",  info->si_uid);		/* Real user ID of sending process */
+	printf ("si_status   = %d\n",  info->si_status);	/* Exit value or signal */
+	printf ("si_utime    = %ld\n", info->si_utime);		/* User time consumed */
+	printf ("si_stime    = %ld\n", info->si_stime);		/* System time consumed */
+	printf ("si_value    = %p\n",  info->si_value.sival_ptr);/* Signal value */
+	printf ("si_int      = %d\n",  info->si_int);		/* POSIX.1b signal */
+	printf ("si_ptr      = %p\n",  info->si_ptr);		/* POSIX.1b signal */
+	printf ("si_overrun  = %d\n",  info->si_overrun);	/* Timer overrun count; POSIX.1b timers */
+	printf ("si_timerid  = %d\n",  info->si_timerid);	/* Timer ID; POSIX.1b timers */
+	printf ("si_addr     = %p\n",  info->si_addr);		/* Memory location which caused fault */
+	printf ("si_band     = %ld\n", info->si_band);		/* Band event (was int in glibc 2.3.2 and earlier) */
+	printf ("si_fd       = %d\n",  info->si_fd);		/* File descriptor */
+#endif
 }
 
 /**
@@ -256,7 +274,7 @@ main (int argc, char *argv[])
 	int fd2 = -1;
 	char read_buf[1024];
 	int count;
-	int i;
+	//int i;
 	struct sigaction sig_new;
 	struct sigaction sig_old;
 
@@ -371,8 +389,14 @@ main (int argc, char *argv[])
 				}
 			}
 #endif
-			//printf ("starting vim\n");
-			//count = write (fd, "vim $RANDOM.txt\n", 16);
+#if 0
+			printf ("starting vim\n");
+			count = write (fd, "vim $RANDOM.txt\n", 16);
+			sleep (1);
+			while ((count = read (fd, read_buf, sizeof (read_buf))) != -1) {
+				write (STDOUT_FILENO, read_buf, count);
+			}
+#endif
 #if 0
 			printf ("running echo\n");
 			count = write (fd, "echo hello world\n", 17);
@@ -381,7 +405,7 @@ main (int argc, char *argv[])
 				write (STDOUT_FILENO, read_buf, count);
 			}
 #endif
-#if 1
+#if 0
 			printf ("running set\n");
 			count = write (fd, "set\n", 4);
 			sleep (1);
@@ -392,7 +416,7 @@ main (int argc, char *argv[])
 
 			sleep (1);
 			close (fd);
-#if 0
+#if 1
 			printf ("exit\n");
 			count = write (fd, "exit\n", 5);
 			sleep (1);
