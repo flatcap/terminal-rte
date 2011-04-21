@@ -9,6 +9,9 @@
 #include <curses.h>
 #include <term.h>
 
+/**
+ * winsize_ioctl
+ */
 void
 winsize_ioctl (void)
 {
@@ -18,6 +21,9 @@ winsize_ioctl (void)
 	printf ("ioctl:  Window resized (%dx%d)\n", w.ws_col, w.ws_row);
 }
 
+/**
+ * winsize_curses
+ */
 void
 winsize_curses (void)
 {
@@ -36,6 +42,9 @@ winsize_curses (void)
 	printf ("curses: Window resized (%dx%d)\n", cols, rows);
 }
 
+/**
+ * sig_winch
+ */
 void
 sig_winch (int sig, siginfo_t *info, void *context)
 {
@@ -43,6 +52,9 @@ sig_winch (int sig, siginfo_t *info, void *context)
 	winsize_curses();
 }
 
+/**
+ * main
+ */
 int
 main (int argc, char *argv[])
 {
