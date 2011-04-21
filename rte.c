@@ -218,9 +218,9 @@ rte_child_setup (int fd)
 #endif
 
 void
-sig_child (int arg)
+sig_child (int sig, siginfo_t *info, void *context)
 {
-	printf ("SIGCHLD - child dead? %d\n", arg);
+	printf ("SIGCHLD - child dead?\n");
 }
 
 /**
@@ -321,7 +321,8 @@ main (int argc, char *argv[])
 			memset (&sig_new, 0, sizeof (sig_new));
 			memset (&sig_old, 0, sizeof (sig_old));
 
-			sig_new.sa_handler = sig_child;
+			sig_new.sa_flags     = SA_SIGINFO;
+			sig_new.sa_sigaction = sig_child;
 
 			sigaction (SIGCHLD, &sig_new, &sig_old);
 
@@ -330,23 +331,35 @@ main (int argc, char *argv[])
 			//fd2 = open (buf, O_RDWR | O_NONBLOCK);
 			//printf ("parent fd = %s, %d\n", buf, fd);
 			//sleep (5);
-			for (i = 0; i < 5; i++) {
+			for (i = 0; i < 3; i++) {
 				count = write (fd, "ls\n", 3);
 				printf ("write = %d\n", count);
+				sleep (1);
 				count = read (fd, read_buf, sizeof (read_buf));
 				if (count > 0) {
-					printf ("count = %d\n", count);
-					printf ("read_buf = %s\n", read_buf);
+					write (STDOUT_FILENO, read_buf, count);
 				}
-				sleep (1);
 			}
-			printf ("starting vim\n");
-			count = write (fd, "vim $RANDOM.txt\n", 16);
-			sleep (3);
+			//printf ("starting vim\n");
+			//count = write (fd, "vim $RANDOM.txt\n", 16);
+#if 0
+			printf ("running set\n");
+			count = write (fd, "set\n", 4);
+			sleep (1);
+			while ((count = read (fd, read_buf, sizeof (read_buf))) != -1) {
+				write (STDOUT_FILENO, read_buf, count);
+			}
+#endif
+
+			sleep (2);
 			close (fd);
 #if 0
 			printf ("exit\n");
 			count = write (fd, "exit\n", 5);
+			sleep (1);
+			while ((count = read (fd, read_buf, sizeof (read_buf))) != -1) {
+				write (STDOUT_FILENO, read_buf, count);
+			}
 #else
 			printf ("kill %d\n", pid);
 			kill (pid, SIGPIPE);
