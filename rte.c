@@ -129,6 +129,15 @@ rte_set_size (int fd, int rows, int columns)
 	return 1;
 }
 
+/**
+ * rte_sig_child
+ */
+void
+rte_sig_child (int sig, siginfo_t *info, void *context)
+{
+	printf ("SIGCHLD - child dead?\n");
+}
+
 
 #ifdef wibble
 /**
@@ -216,12 +225,6 @@ rte_child_setup (int fd)
 }
 
 #endif
-
-void
-sig_child (int sig, siginfo_t *info, void *context)
-{
-	printf ("SIGCHLD - child dead?\n");
-}
 
 /**
  * main
@@ -322,7 +325,7 @@ main (int argc, char *argv[])
 			memset (&sig_old, 0, sizeof (sig_old));
 
 			sig_new.sa_flags     = SA_SIGINFO;
-			sig_new.sa_sigaction = sig_child;
+			sig_new.sa_sigaction = rte_sig_child;
 
 			sigaction (SIGCHLD, &sig_new, &sig_old);
 
