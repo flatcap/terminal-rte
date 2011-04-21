@@ -1,5 +1,5 @@
 CC	= gcc
-PROGS	= rte window_resize
+PROGS	= rte window_resize simple_terminal
 CFLAGS	= -g -Wall
 
 CFLAGS  += `pkg-config ncurses --cflags`
