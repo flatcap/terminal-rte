@@ -1,3 +1,7 @@
+# build products
 /rte
+/window_resize
+
+# junk
 .*swp
 tags
