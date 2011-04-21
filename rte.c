@@ -251,6 +251,8 @@ main (int argc, char *argv[])
 		return 1;
 	}
 
+	fcntl (fd, F_SETFL, O_NONBLOCK);
+
 	printf ("fd = %d\n", fd);
 
 	if ((buf = rte_ptsname (fd)) == NULL) {
@@ -353,6 +355,14 @@ main (int argc, char *argv[])
 			//printf ("starting vim\n");
 			//count = write (fd, "vim $RANDOM.txt\n", 16);
 #if 0
+			printf ("running echo\n");
+			count = write (fd, "echo hello world\n", 17);
+			sleep (1);
+			while ((count = read (fd, read_buf, sizeof (read_buf))) != -1) {
+				write (STDOUT_FILENO, read_buf, count);
+			}
+#endif
+#if 1
 			printf ("running set\n");
 			count = write (fd, "set\n", 4);
 			sleep (1);
