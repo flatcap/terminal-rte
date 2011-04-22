@@ -2,15 +2,11 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-//#include <features.h>
 #include <stdlib.h>
-//#include <errno.h>
-//#include <termios.h>
+#include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
-//#include <sys/stat.h>
 #include <fcntl.h>
-//#include <signal.h>
 #include <sys/wait.h>
 
 /**
@@ -202,7 +198,7 @@ main (int argc, char *argv[])
 
 			rte_clean_env();
 
-			execl ("/home/terminal/readline/bash-4.2/rash", "RASH", "--norc", "--noprofile", NULL);
+			execl ("/home/terminal/readline/bash/bash", "RASH", "--norc", "--noprofile", NULL);
 			break;
 		default: /* parent */
 			memset (&sig_new, 0, sizeof (sig_new));
