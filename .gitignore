@@ -2,6 +2,7 @@
 /rte
 /simple_terminal
 /window_resize
+/multiple
 
 # junk
 .*swp

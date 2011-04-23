@@ -1,9 +1,9 @@
 CC	= gcc
-PROGS	= rte window_resize simple_terminal
+PROGS	= rte window_resize simple_terminal multiple
 CFLAGS	= -g -Wall
 
-CFLAGS  += `pkg-config ncurses --cflags`
-LDFLAGS += `pkg-config ncurses --libs`
+CFLAGS  += `pkg-config ncurses gtk+-2.0 --cflags`
+LDFLAGS += `pkg-config ncurses gtk+-2.0 --libs`
 
 all:	$(PROGS)
 
