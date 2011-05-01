@@ -23,11 +23,12 @@ int   font_height = 18;
 gboolean
 on_button_press (GtkWidget *widget, GdkEventButton *button, VIEW *v)
 {
+	static int count = 0;
 	char buffer[64];
 	GdkRectangle rect = { 0, 0, NUM_COLS*font_width, NUM_ROWS*font_height };
 	GdkRegion *region;
 
-	sprintf (buffer, "button press %d at (%.0f,%.0f) at %u", button->button, button->x, button->y, button->time);
+	sprintf (buffer, "(%d) button press %d at (%.0f,%.0f) at %u", count++, button->button, button->x, button->y, button->time);
 	view_add_line (v, buffer);
 
 	region = gdk_region_rectangle (&rect);
