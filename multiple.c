@@ -174,19 +174,11 @@ main(int argc, char **argv)
 	GtkWidget *drawing_area[NUM_WINDOWS];
 	char title[64];
 
-	GdkScreen *screen;
-	GdkColormap *colormap;
-
 	gtk_init(&argc, &argv);
 
 	for (i = 0; i < NUM_WINDOWS; i++) {
 		ring_init(i);
 		window[i] = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
-		screen = gtk_widget_get_screen(window[i]);
-		colormap = gdk_screen_get_rgba_colormap(screen);
-		gtk_widget_set_colormap(window[i], colormap);
-		gtk_widget_set_app_paintable(window[i], TRUE);
 
 		drawing_area[i] = gtk_drawing_area_new();
 		gtk_container_add(GTK_CONTAINER(window[i]), drawing_area[i]);
