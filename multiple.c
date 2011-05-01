@@ -39,19 +39,6 @@ on_button_press (GtkWidget *widget, GdkEventButton *button, VIEW *v)
 }
 
 /**
- * on_key_press
- */
-gboolean
-on_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *v)
-{
-	if (key->keyval == GDK_Escape)
-		gtk_main_quit();
-
-	//printf ("num = %ld\n", (long int) num);
-	return FALSE;
-}
-
-/**
  * expose_event
  */
 gboolean
@@ -106,6 +93,45 @@ expose_event (GtkWidget * widget, GdkEventExpose * event, VIEW *v)
 	return FALSE;
 }
 
+/**
+ * on_key_press
+ */
+gboolean
+on_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *v)
+{
+	if (key->keyval == GDK_Escape)
+		gtk_main_quit();
+
+	if (key->keyval == GDK_n) {
+		// Create a new window
+		GtkWidget *window;
+		GtkWidget *drawing_area;
+		VIEW *v = NULL;
+
+		window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+		drawing_area = gtk_drawing_area_new();
+		gtk_container_add (GTK_CONTAINER (window), drawing_area);
+
+		gtk_widget_add_events (window, GDK_BUTTON_PRESS_MASK);
+
+		v = view_new (NUM_COLS, NUM_ROWS);
+
+		g_signal_connect_after (window,       "destroy",            G_CALLBACK (gtk_main_quit),   NULL);
+		g_signal_connect       (drawing_area, "expose-event",       G_CALLBACK (expose_event),    v);
+		g_signal_connect       (window,       "button-press-event", G_CALLBACK (on_button_press), v);
+		g_signal_connect       (window,       "key-press-event",    G_CALLBACK (on_key_press),    v);
+
+		gtk_window_set_title (GTK_WINDOW (window), "main window");
+		gtk_widget_show_all (window);
+		gtk_window_resize (GTK_WINDOW (window), NUM_COLS*font_width, NUM_ROWS*font_height);
+		gtk_window_move (GTK_WINDOW (window), OFFSET_X - (2*NUM_COLS*font_width+15), OFFSET_Y);
+	}
+
+	//printf ("num = %ld\n", (long int) num);
+	return FALSE;
+}
+
 
 /**
  * main
@@ -129,14 +155,14 @@ main (int argc, char **argv)
 	v = view_new (NUM_COLS, NUM_ROWS);
 
 	g_signal_connect_after (window,       "destroy",            G_CALLBACK (gtk_main_quit),   NULL);
-	g_signal_connect      (drawing_area, "expose-event",       G_CALLBACK (expose_event),    v);
-	g_signal_connect      (window,       "button-press-event", G_CALLBACK (on_button_press), v);
-	g_signal_connect      (window,       "key-press-event",    G_CALLBACK (on_key_press),    v);
+	g_signal_connect       (drawing_area, "expose-event",       G_CALLBACK (expose_event),    v);
+	g_signal_connect       (window,       "button-press-event", G_CALLBACK (on_button_press), v);
+	g_signal_connect       (window,       "key-press-event",    G_CALLBACK (on_key_press),    v);
 
 	gtk_window_set_title (GTK_WINDOW (window), "main window");
 	gtk_widget_show_all (window);
 	gtk_window_resize (GTK_WINDOW (window), NUM_COLS*font_width, NUM_ROWS*font_height);
-	gtk_window_move (GTK_WINDOW (window), OFFSET_X- (NUM_COLS*font_width), OFFSET_Y);
+	gtk_window_move (GTK_WINDOW (window), OFFSET_X - (NUM_COLS*font_width), OFFSET_Y);
 
 	gtk_main();
 
