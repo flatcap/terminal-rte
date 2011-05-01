@@ -172,6 +172,7 @@ main(int argc, char **argv)
 	int i;
 	GtkWidget *window[NUM_WINDOWS];
 	GtkWidget *drawing_area[NUM_WINDOWS];
+	char title[64];
 
 	GdkScreen *screen;
 	GdkColormap *colormap;
@@ -197,6 +198,8 @@ main(int argc, char **argv)
 		g_signal_connect      (window[i],       "button-press-event", G_CALLBACK(on_button_press), (void*)(long long)i);
 		g_signal_connect      (window[i],       "key-press-event",    G_CALLBACK(on_key_press),    (void*)(long long)i);
 
+		sprintf (title, "multiple %d", i);
+		gtk_window_set_title (GTK_WINDOW (window[i]), title);
 		gtk_widget_show_all(window[i]);
 		gtk_window_resize (GTK_WINDOW(window[i]), NUM_COLS*font_width, NUM_ROWS*font_height);
 		gtk_window_move (GTK_WINDOW (window[i]), OFFSET_X, i*(NUM_ROWS*font_height+20)+OFFSET_Y);
