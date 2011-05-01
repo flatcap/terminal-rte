@@ -3,7 +3,9 @@
 /simple_terminal
 /window_resize
 /multiple
+/Session.vim
 
 # junk
 .*swp
+*.o
 tags
