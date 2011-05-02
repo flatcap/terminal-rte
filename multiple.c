@@ -104,16 +104,30 @@ on_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *v)
 
 	if (key->keyval == GDK_n) {
 		// Create a new window
-		GtkWidget *window;
-		GtkWidget *drawing_area;
+		GtkWidget *window = NULL;
+		GtkWidget *drawing_area = NULL;
+		GtkWidget *hbox = NULL;
+		GtkWidget *vscr = NULL;
+		GtkObject *adj = NULL;
 		VIEW *v = NULL;
 
 		window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+		gtk_widget_add_events (window, GDK_BUTTON_PRESS_MASK);
+
+		hbox = gtk_hbox_new (FALSE, 0);
+		gtk_container_add (GTK_CONTAINER (window), hbox);
 
 		drawing_area = gtk_drawing_area_new();
-		gtk_container_add (GTK_CONTAINER (window), drawing_area);
+		gtk_container_add (GTK_CONTAINER (hbox), drawing_area);
 
-		gtk_widget_add_events (window, GDK_BUTTON_PRESS_MASK);
+		// (value, lower, upper, step_increment, page_increment, page_size);
+		adj = gtk_adjustment_new (0.0, 0.0, 100.0, 1.0, 20, 20);
+		vscr = gtk_vscrollbar_new (GTK_ADJUSTMENT (adj));
+
+		gtk_container_add (GTK_CONTAINER (hbox), vscr);
+
+		gtk_box_set_child_packing (GTK_BOX (hbox), drawing_area, TRUE,  TRUE,  0, GTK_PACK_START);
+		gtk_box_set_child_packing (GTK_BOX (hbox), vscr,         FALSE, FALSE, 0, GTK_PACK_END);
 
 		v = view_new (NUM_COLS, NUM_ROWS);
 
