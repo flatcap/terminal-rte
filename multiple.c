@@ -1,5 +1,9 @@
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
@@ -16,6 +20,45 @@ int   font_point = 11;
 
 int   font_width  = 9;
 int   font_height = 18;
+
+/**
+ * preload
+ */
+void
+preload (VIEW *v, char *file)
+{
+	int buf_size = 10240;
+	char *buffer = NULL;
+	char *ptr = NULL;
+	int fd = -1;
+	if (!v || !file)
+		return;
+
+	fd = open (file, O_RDONLY);
+	if (fd < 0)
+		return;
+
+	buffer = malloc (buf_size);
+	if (!buffer) {
+		close (fd);
+		printf ("%s: failed\n", __FUNCTION__);
+		return;
+	}
+
+	buf_size = read (fd, buffer, buf_size);
+	printf ("read %d bytes\n", buf_size);
+
+	ptr = strtok (buffer, "\n");
+	while (ptr) {
+		//printf ("LINE: %s\n", ptr);
+		view_add_line (v, ptr);
+		ptr = strtok (NULL, "\n");
+	}
+
+	printf ("%s (%p,\"%s\")\n", __FUNCTION__, v, file);
+	close (fd);
+	free (buffer);
+}
 
 /**
  * on_button_press
@@ -167,6 +210,7 @@ main (int argc, char **argv)
 	gtk_widget_add_events (window, GDK_BUTTON_PRESS_MASK);
 
 	v = view_new (NUM_COLS, NUM_ROWS);
+	preload (v, "rte.c");
 
 	g_signal_connect_after (window,       "destroy",            G_CALLBACK (gtk_main_quit),   NULL);
 	g_signal_connect       (drawing_area, "expose-event",       G_CALLBACK (expose_event),    v);
