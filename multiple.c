@@ -87,6 +87,24 @@ file_choose (GtkWindow *window, VIEW *view)
 
 
 /**
+ * event_frame
+ */
+gboolean
+event_frame (GtkWindow *window, GdkEvent *event, gpointer data)
+{
+	int x, y, w, h;
+	char buf[20];
+	x = event->configure.x;
+	y = event->configure.y;
+	w = event->configure.width;
+	h = event->configure.height;
+	sprintf (buf, "%d, %d + %d, %d", w, h, x, y);
+	gtk_window_set_title (window, buf);
+
+	return FALSE;
+}
+
+/**
  * event_button_press
  */
 gboolean
@@ -200,6 +218,7 @@ window_create (int cols, int rows, int x, int y, VIEW *view)
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_widget_add_events (window, GDK_BUTTON_PRESS_MASK);
+	gtk_widget_add_events (window, GDK_CONFIGURE);
 
 	hbox = gtk_hbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (window), hbox);
@@ -223,6 +242,7 @@ window_create (int cols, int rows, int x, int y, VIEW *view)
 	g_signal_connect       (drawing_area, "expose-event",       G_CALLBACK (event_expose),       view);
 	g_signal_connect       (window,       "button-press-event", G_CALLBACK (event_button_press), view);
 	g_signal_connect       (window,       "key-press-event",    G_CALLBACK (event_key_press),    view);
+	g_signal_connect       (window,       "configure-event",    G_CALLBACK (event_frame),        view);
 
 	if ((x > 0) && (y > 0))
 		gtk_window_move (GTK_WINDOW (window), x, y);
