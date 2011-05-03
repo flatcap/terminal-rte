@@ -10,12 +10,13 @@ typedef struct
 	CACHE *cache;
 } VIEW;
 
-VIEW * view_new (int cols, int rows);
-void view_free (VIEW *v);
-void view_add_line (VIEW *v, char *text);
-void view_dump (VIEW *v);
-char * view_get_line (VIEW *v, int line);
-int view_get_length (VIEW *v);
+VIEW * view_new        (int cols, int rows);
+void   view_free       (VIEW *view);
+void   view_add_line   (VIEW *view, char *text);
+void   view_dump       (VIEW *view);
+char * view_get_line   (VIEW *view, int line);
+int    view_get_length (VIEW *view);
+void   view_set_size   (VIEW *view, int cols, int rows);
 
 #endif // _VIEW_H_
 

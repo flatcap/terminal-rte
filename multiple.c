@@ -90,7 +90,7 @@ file_choose (GtkWindow *window, VIEW *view)
  * event_frame
  */
 gboolean
-event_frame (GtkWindow *window, GdkEvent *event, gpointer data)
+event_frame (GtkWindow *window, GdkEvent *event, VIEW *view)
 {
 	int x, y, w, h;
 	char buf[20];
@@ -100,6 +100,8 @@ event_frame (GtkWindow *window, GdkEvent *event, gpointer data)
 	h = event->configure.height;
 	sprintf (buf, "%d, %d + %d, %d", w, h, x, y);
 	gtk_window_set_title (window, buf);
+
+	view_set_size (view, w/font_width, h/font_height);
 
 	return FALSE;
 }

@@ -9,88 +9,103 @@
 VIEW *
 view_new (int cols, int rows)
 {
-	VIEW *v = NULL;
-	CACHE *c= NULL;
+	VIEW  *view  = NULL;
+	CACHE *cache = NULL;
 
-	v = calloc (1, sizeof (VIEW));
-	if (!v)
+	view = calloc (1, sizeof (VIEW));
+	if (!view)
 		return NULL;
 
-	c = cache_new();
-	if (!c) {
-		free (v);
+	cache = cache_new();
+	if (!cache) {
+		free (view);
 		return NULL;
 	}
 
-	v->cols = cols;
-	v->rows = rows;
-	v->cache = c;
+	view->cols  = cols;
+	view->rows  = rows;
+	view->cache = cache;
 
-	printf ("%s (%d,%d) -> %p\n", __FUNCTION__, cols, rows, v);
-	return v;
+	printf ("%s (%d,%d) -> %p\n", __FUNCTION__, cols, rows, view);
+	return view;
 }
 
 /**
  * view_free
  */
 void
-view_free (VIEW *v)
+view_free (VIEW *view)
 {
-	printf ("%s (%p)\n", __FUNCTION__, v);
-	free (v);
+	printf ("%s (%p)\n", __FUNCTION__, view);
+	free (view);
 }
 
 /**
  * view_add_line
  */
 void
-view_add_line (VIEW *v, char *text)
+view_add_line (VIEW *view, char *text)
 {
-	if (!v)
+	if (!view)
 		return;
 
-	printf ("%s (%p,\"%s\")\n", __FUNCTION__, v, text);
-	cache_add_line (v->cache, text);
+	printf ("%s (%p,\"%s\")\n", __FUNCTION__, view, text);
+	cache_add_line (view->cache, text);
 }
 
 /**
  * view_dump
  */
 void
-view_dump (VIEW *v)
+view_dump (VIEW *view)
 {
-	if (!v)
+	if (!view)
 		return;
 	printf ("%s\n", __FUNCTION__);
-	printf ("\tcols = %d\n", v->cols);
-	printf ("\trows = %d\n", v->rows);
-	cache_dump (v->cache);
+	printf ("\tcols = %d\n", view->cols);
+	printf ("\trows = %d\n", view->rows);
+	cache_dump (view->cache);
 }
 
 /**
  * view_get_line
  */
 char *
-view_get_line (VIEW *v, int line)
+view_get_line (VIEW *view, int line)
 {
-	if (!v)
+	if (!view)
 		return NULL;
 
-	printf ("%s (%p,%d)\n", __FUNCTION__, v, line);
-	return cache_get_line (v->cache, line);
+	printf ("%s (%p,%d)\n", __FUNCTION__, view, line);
+	return cache_get_line (view->cache, line);
 }
 
 /**
  * view_get_length
  */
 int
-view_get_length (VIEW *v)
+view_get_length (VIEW *view)
 {
 	int len = 0;
-	if (!v)
+	if (!view)
 		return 0;
 
-	len = cache_get_length (v->cache);
-	printf ("%s (%p) -> %d\n", __FUNCTION__, v, len);
+	len = cache_get_length (view->cache);
+	printf ("%s (%p) -> %d\n", __FUNCTION__, view, len);
 	return len;
 }
+
+/**
+ * view_set_size
+ */
+void
+view_set_size (VIEW *view, int cols, int rows)
+{
+	if (!view)
+		return;
+
+	printf ("%s (%p,%d,%d)\n", __FUNCTION__, view, cols, rows);
+	view->cols = cols;
+	view->rows = rows;
+}
+
