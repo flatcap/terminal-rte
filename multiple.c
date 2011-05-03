@@ -165,18 +165,19 @@ event_expose (GtkWidget *widget, GdkEventExpose *event, VIEW *view)
 /**
  * event_key_press
  */
-
 gboolean
 event_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *view)
 {
 	switch (key->keyval) {
 		case GDK_Escape:
+		case GDK_q:
 			gtk_main_quit();
 			break;
 		case GDK_n:
 			window_create (NUM_COLS, NUM_ROWS, -1, -1, view);
 			break;
 		case GDK_f:
+		case GDK_o:
 			file_choose (GTK_WINDOW (widget), view);
 			break;
 	}
