@@ -12,9 +12,6 @@
 #define NUM_ROWS	20
 #define NUM_COLS	50
 
-#define OFFSET_X	1920
-#define OFFSET_Y	0
-
 char *font_face  = "monospace";
 int   font_point = 11;
 
@@ -29,10 +26,13 @@ GtkWidget * window_create (int cols, int rows, int x, int y, VIEW *view);
 void
 file_read (VIEW *view, char *file)
 {
-	int buf_size = 10240;
-	char *buffer = NULL;
-	char *ptr = NULL;
-	int fd = -1;
+	int   buf_size = 10240;
+	int   fd       = -1;
+	char *buffer   = NULL;
+	char *start    = NULL;
+	char *end      = NULL;
+	char *line     = NULL;
+
 	if (!view || !file)
 		return;
 
@@ -40,7 +40,7 @@ file_read (VIEW *view, char *file)
 	if (fd < 0)
 		return;
 
-	buffer = malloc (buf_size);
+	buffer = calloc (1, buf_size);
 	if (!buffer) {
 		close (fd);
 		printf ("%s: failed\n", __FUNCTION__);
@@ -50,12 +50,17 @@ file_read (VIEW *view, char *file)
 	buf_size = read (fd, buffer, buf_size);
 	printf ("read %d bytes\n", buf_size);
 
-	ptr = strtok (buffer, "\n");
-	while (ptr) {
-		//printf ("LINE: %s\n", ptr);
-		view_add_line (view, ptr);
-		ptr = strtok (NULL, "\n");
-	}
+	start = buffer;
+	end = strchr (start, '\n');
+	do {
+		line = strndup (start, (int) (end - start));
+		printf ("LINE: %s\n", line);
+		//printf ("bytes processed: %d\n", (int) (ptr - buffer));
+		view_add_line (view, line);
+		free (line);
+		start = end + 1;
+		end = strchr (start, '\n');
+	} while (*start);
 
 	printf ("%s (%p,\"%s\")\n", __FUNCTION__, view, file);
 	close (fd);
