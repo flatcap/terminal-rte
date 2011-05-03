@@ -94,7 +94,7 @@ event_button_press (GtkWidget *widget, GdkEventButton *button, VIEW *view)
 {
 	static int count = 0;
 	char buffer[64];
-	GdkRectangle rect = { 0, 0, NUM_COLS*font_width, NUM_ROWS*font_height };
+	GdkRectangle rect = { 0, 0, view->cols*font_width, view->rows*font_height };
 	GdkRegion *region;
 
 	sprintf (buffer, "(%d) button press %d at (%.0f,%.0f) at %u", count++, button->button, button->x, button->y, button->time);
@@ -136,14 +136,14 @@ event_expose (GtkWidget *widget, GdkEventExpose *event, VIEW *view)
 	pango_font_description_free (desc);
 
 	lines = view_get_length (view);
-	if (lines > NUM_ROWS) {
-		offset = lines - NUM_ROWS;
+	if (lines > view->rows) {
+		offset = lines - view->rows;
 	} else {
 		offset = 0;
 	}
 	printf ("offset = %d\n", offset);
 
-	for (i = 0; i < NUM_ROWS; i++) {
+	for (i = 0; i < view->rows; i++) {
 		text = view_get_line (view, i + offset);
 		printf ("buffer = %s\n", text);
 		if (!text)
@@ -174,7 +174,7 @@ event_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *view)
 			gtk_main_quit();
 			break;
 		case GDK_n:
-			window_create (NUM_COLS, NUM_ROWS, -1, -1, view);
+			window_create (view->cols, view->rows, -1, -1, view);
 			break;
 		case GDK_f:
 		case GDK_o:
