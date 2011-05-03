@@ -22,16 +22,16 @@ int   font_width  = 9;
 int   font_height = 18;
 
 /**
- * preload
+ * file_read
  */
 void
-preload (VIEW *v, char *file)
+file_read (VIEW *view, char *file)
 {
 	int buf_size = 10240;
 	char *buffer = NULL;
 	char *ptr = NULL;
 	int fd = -1;
-	if (!v || !file)
+	if (!view || !file)
 		return;
 
 	fd = open (file, O_RDONLY);
@@ -51,20 +51,39 @@ preload (VIEW *v, char *file)
 	ptr = strtok (buffer, "\n");
 	while (ptr) {
 		//printf ("LINE: %s\n", ptr);
-		view_add_line (v, ptr);
+		view_add_line (view, ptr);
 		ptr = strtok (NULL, "\n");
 	}
 
-	printf ("%s (%p,\"%s\")\n", __FUNCTION__, v, file);
+	printf ("%s (%p,\"%s\")\n", __FUNCTION__, view, file);
 	close (fd);
 	free (buffer);
 }
 
 /**
- * on_button_press
+ * file_choose
+ */
+void
+file_choose (GtkWindow *window, VIEW *view)
+{
+	GtkWidget *dialog;
+	char *filename;
+
+	dialog = gtk_file_chooser_dialog_new ("Open File", window, GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+	if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
+		filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+		file_read (view, filename);
+		g_free (filename);
+	}
+	gtk_widget_destroy (dialog);
+}
+
+
+/**
+ * event_button_press
  */
 gboolean
-on_button_press (GtkWidget *widget, GdkEventButton *button, VIEW *v)
+event_button_press (GtkWidget *widget, GdkEventButton *button, VIEW *v)
 {
 	static int count = 0;
 	char buffer[64];
@@ -82,10 +101,10 @@ on_button_press (GtkWidget *widget, GdkEventButton *button, VIEW *v)
 }
 
 /**
- * expose_event
+ * event_expose
  */
 gboolean
-expose_event (GtkWidget * widget, GdkEventExpose * event, VIEW *v)
+event_expose (GtkWidget * widget, GdkEventExpose * event, VIEW *v)
 {
 	cairo_t *cr;
 	PangoFontDescription *desc;
@@ -137,10 +156,11 @@ expose_event (GtkWidget * widget, GdkEventExpose * event, VIEW *v)
 }
 
 /**
- * on_key_press
+ * event_key_press
  */
+
 gboolean
-on_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *v)
+event_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *v)
 {
 	if (key->keyval == GDK_Escape)
 		gtk_main_quit();
@@ -175,14 +195,18 @@ on_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *v)
 		v = view_new (NUM_COLS, NUM_ROWS);
 
 		g_signal_connect_after (window,       "destroy",            G_CALLBACK (gtk_main_quit),   NULL);
-		g_signal_connect       (drawing_area, "expose-event",       G_CALLBACK (expose_event),    v);
-		g_signal_connect       (window,       "button-press-event", G_CALLBACK (on_button_press), v);
-		g_signal_connect       (window,       "key-press-event",    G_CALLBACK (on_key_press),    v);
+		g_signal_connect       (drawing_area, "expose-event",       G_CALLBACK (event_expose),    v);
+		g_signal_connect       (window,       "button-press-event", G_CALLBACK (event_button_press), v);
+		g_signal_connect       (window,       "key-press-event",    G_CALLBACK (event_key_press),    v);
 
 		gtk_window_set_title (GTK_WINDOW (window), "main window");
 		gtk_widget_show_all (window);
 		gtk_window_resize (GTK_WINDOW (window), NUM_COLS*font_width, NUM_ROWS*font_height);
 		gtk_window_move (GTK_WINDOW (window), OFFSET_X - (2*NUM_COLS*font_width+15), OFFSET_Y);
+	}
+
+	if (key->keyval == GDK_f) {
+		file_choose (GTK_WINDOW (widget), v);
 	}
 
 	//printf ("num = %ld\n", (long int) num);
@@ -210,12 +234,12 @@ main (int argc, char **argv)
 	gtk_widget_add_events (window, GDK_BUTTON_PRESS_MASK);
 
 	v = view_new (NUM_COLS, NUM_ROWS);
-	preload (v, "rte.c");
+	file_read (v, "rte.c");
 
 	g_signal_connect_after (window,       "destroy",            G_CALLBACK (gtk_main_quit),   NULL);
-	g_signal_connect       (drawing_area, "expose-event",       G_CALLBACK (expose_event),    v);
-	g_signal_connect       (window,       "button-press-event", G_CALLBACK (on_button_press), v);
-	g_signal_connect       (window,       "key-press-event",    G_CALLBACK (on_key_press),    v);
+	g_signal_connect       (drawing_area, "expose-event",       G_CALLBACK (event_expose),    v);
+	g_signal_connect       (window,       "button-press-event", G_CALLBACK (event_button_press), v);
+	g_signal_connect       (window,       "key-press-event",    G_CALLBACK (event_key_press),    v);
 
 	gtk_window_set_title (GTK_WINDOW (window), "main window");
 	gtk_widget_show_all (window);
