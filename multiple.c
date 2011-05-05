@@ -298,10 +298,10 @@ window_create (int cols, int rows, int x, int y, VIEW *view)
 	view_add_window (view, window);
 
 	g_signal_connect_after (window,       "destroy",            G_CALLBACK (gtk_main_quit),      NULL);
-	g_signal_connect       (drawing_area, "expose-event",       G_CALLBACK (event_expose),       view);
 	g_signal_connect       (window,       "button-press-event", G_CALLBACK (event_button_press), view);
 	g_signal_connect       (window,       "key-press-event",    G_CALLBACK (event_key_press),    view);
-	g_signal_connect       (window,       "configure-event",    G_CALLBACK (event_frame),        view);
+	g_signal_connect       (drawing_area, "expose-event",       G_CALLBACK (event_expose),       view);
+	g_signal_connect       (drawing_area, "configure-event",    G_CALLBACK (event_frame),        view);
 
 	if ((x > 0) && (y > 0))
 		gtk_window_move (GTK_WINDOW (window), x, y);
