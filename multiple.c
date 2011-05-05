@@ -30,6 +30,32 @@ list_invalidate (GtkWidget *window, VIEW *view)
 	window_invalidate (window, view);
 }
 
+/**
+ * char_block
+ */
+void
+char_block (VIEW *view)
+{
+	char *buffer;
+	int r;
+	int c;
+
+	if (!view)
+		return;
+
+	buffer = malloc (view->cols + 1);
+	buffer[view->cols] = 0;
+
+	for (r = 0; r < view->rows; r++) {
+		for (c = 0; c < view->cols; c++) {
+			buffer[c] = 'A' + ((r + c) % 26);
+		}
+		view_add_line (view, buffer);
+	}
+
+	free (buffer);
+}
+
 
 /**
  * file_read
@@ -210,6 +236,10 @@ event_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *view)
 		case GDK_f:
 		case GDK_o:
 			file_choose (GTK_WINDOW (widget), view);
+			g_list_foreach (view->windows, (GFunc) list_invalidate, view);
+			break;
+		case GDK_b:
+			char_block (view);
 			g_list_foreach (view->windows, (GFunc) list_invalidate, view);
 			break;
 	}
