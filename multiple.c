@@ -313,6 +313,15 @@ window_create (int cols, int rows, int x, int y, VIEW *view)
 	GtkWidget *hbox         = NULL;
 	GtkWidget *vscr         = NULL;
 	GtkObject *adj          = NULL;
+	int        width        = 800;
+	int        height       = 500;
+
+	if ((cols < 0) || (rows < 0)) {
+		gtk_window_get_size  (GTK_WINDOW (window), &width, &height);
+	} else {
+		width  = cols * font_width + 18;	// + scrollbar
+		height = rows * font_height;
+	}
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_widget_add_events (window, GDK_BUTTON_PRESS_MASK);
@@ -347,7 +356,7 @@ window_create (int cols, int rows, int x, int y, VIEW *view)
 		gtk_window_move (GTK_WINDOW (window), x, y);
 
 	gtk_window_set_title (GTK_WINDOW (window), "rte");
-	gtk_window_resize    (GTK_WINDOW (window), cols*font_width, rows*font_height);
+	gtk_window_resize    (GTK_WINDOW (window), width, height);
 	gtk_widget_show_all  (window);
 
 	return window;
