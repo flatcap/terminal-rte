@@ -128,16 +128,25 @@ file_choose (GtkWindow *window, VIEW *view)
  * event_frame
  */
 gboolean
-event_frame (GtkWindow *window, GdkEvent *event, VIEW *view)
+event_frame (GtkWidget *drawing_area, GdkEvent *event, VIEW *view)
 {
-	int x, y, w, h;
-	char buf[20];
-	x = event->configure.x;
-	y = event->configure.y;
+	int w;
+	int h;
+
 	w = event->configure.width;
 	h = event->configure.height;
-	sprintf (buf, "%d, %d + %d, %d", w, h, x, y);
-	gtk_window_set_title (window, buf);
+
+	if (1) {
+		char buf[20];
+		GtkWidget *hbox = NULL;
+		GtkWidget *window = NULL;
+
+		hbox   = gtk_widget_get_parent (drawing_area);
+		window = gtk_widget_get_parent (hbox);
+
+		sprintf (buf, "%d, %d", w, h);
+		gtk_window_set_title (GTK_WINDOW (window), buf);
+	}
 
 	view_set_size (view, w/font_width, h/font_height);
 
