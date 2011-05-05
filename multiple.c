@@ -92,7 +92,7 @@ file_read (VIEW *view, char *file)
 	end = strchr (start, '\n');
 	do {
 		line = strndup (start, (int) (end - start));
-		printf ("LINE: %s\n", line);
+		//printf ("LINE: %s\n", line);
 		//printf ("bytes processed: %d\n", (int) (ptr - buffer));
 		view_add_line (view, line);
 		free (line);
