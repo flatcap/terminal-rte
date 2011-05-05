@@ -8,6 +8,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "view.h"
+#include "debug.h"
 
 #define NUM_ROWS	20
 #define NUM_COLS	50
@@ -99,7 +100,7 @@ file_read (VIEW *view, char *file)
 		end = strchr (start, '\n');
 	} while (*start);
 
-	printf ("%s (%p,\"%s\")\n", __FUNCTION__, view, file);
+	Tprintf ("%s (%p,\"%s\")\n", __FUNCTION__, view, file);
 	close (fd);
 	free (buffer);
 }
@@ -193,11 +194,11 @@ event_expose (GtkWidget *widget, GdkEventExpose *event, VIEW *view)
 	} else {
 		offset = 0;
 	}
-	printf ("offset = %d\n", offset);
+	//printf ("offset = %d\n", offset);
 
 	for (i = 0; i < view->rows; i++) {
 		text = view_get_line (view, i + offset);
-		printf ("buffer = %s\n", text);
+		//printf ("buffer = %s\n", text);
 		if (!text)
 			break;
 

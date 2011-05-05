@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "list.h"
+#include "debug.h"
 
 /**
  * list_new
@@ -13,7 +14,7 @@ list_new (void)
 	if (!l)
 		return NULL;
 
-	printf ("%s() -> %p\n", __FUNCTION__, l);
+	Tprintf ("() -> %p\n", l);
 	return l;
 }
 
@@ -25,9 +26,9 @@ list_free (LIST *l)
 {
 	LIST *next;
 
-	printf ("%s (%p)\n", __FUNCTION__, l);
+	Tprintf ("(%p)\n", l);
 	while (l) {
-		printf ("\tfree: %p, %s\n", l, (char *) l->data);
+		//printf ("\tfree: %p, %s\n", l, (char *) l->data);
 		next = l->next;
 		free (l->data);
 		free (l);
@@ -43,7 +44,7 @@ list_append (LIST *l, LIST *new)
 {
 	if (!l)
 		return new;
-	printf ("%s (%p,%p)\n", __FUNCTION__, l, new);
+	Tprintf ("(%p,%p)\n", l, new);
 	l->next = new;
 	new->prev = l;
 	return l;
@@ -62,7 +63,7 @@ list_get_length (LIST *l)
 		l = l->next;
 	}
 
-	printf ("%s (%p) -> %d\n", __FUNCTION__, l, len);
+	Tprintf ("(%p) -> %d\n", l, len);
 	return len;
 }
 

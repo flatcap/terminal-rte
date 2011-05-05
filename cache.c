@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "cache.h"
+#include "debug.h"
 
 /**
  * cache_new
@@ -14,7 +15,7 @@ cache_new (void)
 	if (!c)
 		return NULL;
 
-	printf ("%s() -> %p\n", __FUNCTION__, c);
+	Tprintf ("() -> %p\n", c);
 	return c;
 }
 
@@ -24,7 +25,7 @@ cache_new (void)
 void
 cache_free (CACHE *c)
 {
-	printf ("%s (%p)\n", __FUNCTION__, c);
+	Tprintf ("(%p)\n", c);
 	free (c);
 }
 
@@ -43,7 +44,7 @@ cache_add_line (CACHE *c, char *text)
 	if (!l)
 		return;
 
-	printf ("%s (%p,\"%s\")\n", __FUNCTION__, c, text);
+	Tprintf ("(%p,\"%s\")\n", c, text);
 	if (!c->start)
 		c->start = l;
 	l->data = strdup (text);
@@ -89,7 +90,7 @@ cache_get_line (CACHE *c, int line)
 		l = c->end;
 	}
 
-	printf ("%s (%p,%d) -> %s\n", __FUNCTION__, c, line, (char *) l->data);
+	Tprintf ("(%p,%d) -> %s\n", c, line, (char *) l->data);
 	return l->data;
 }
 
@@ -104,7 +105,7 @@ cache_get_length (CACHE *c)
 		return 0;
 	len = list_get_length (c->start);
 
-	printf ("%s (%p) -> %d\n", __FUNCTION__, c, len);
+	Tprintf ("(%p) -> %d\n", c, len);
 	return len;
 }
 

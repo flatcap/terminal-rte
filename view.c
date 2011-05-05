@@ -4,6 +4,7 @@
 #include <gtk/gtk.h>
 
 #include "view.h"
+#include "debug.h"
 
 /**
  * view_new
@@ -28,7 +29,7 @@ view_new (int cols, int rows)
 	view->rows  = rows;
 	view->cache = cache;
 
-	printf ("%s (%d,%d) -> %p\n", __FUNCTION__, cols, rows, view);
+	Tprintf ("(%d,%d) -> %p\n", cols, rows, view);
 	return view;
 }
 
@@ -38,7 +39,7 @@ view_new (int cols, int rows)
 void
 view_free (VIEW *view)
 {
-	printf ("%s (%p)\n", __FUNCTION__, view);
+	Tprintf ("(%p)\n", view);
 	free (view);
 }
 
@@ -51,7 +52,7 @@ view_add_line (VIEW *view, char *text)
 	if (!view)
 		return;
 
-	printf ("%s (%p,\"%s\")\n", __FUNCTION__, view, text);
+	Tprintf ("(%p,\"%s\")\n", view, text);
 	cache_add_line (view->cache, text);
 }
 
@@ -78,7 +79,7 @@ view_get_line (VIEW *view, int line)
 	if (!view)
 		return NULL;
 
-	printf ("%s (%p,%d)\n", __FUNCTION__, view, line);
+	Tprintf ("(%p,%d)\n", view, line);
 	return cache_get_line (view->cache, line);
 }
 
@@ -93,7 +94,7 @@ view_get_length (VIEW *view)
 		return 0;
 
 	len = cache_get_length (view->cache);
-	printf ("%s (%p) -> %d\n", __FUNCTION__, view, len);
+	Tprintf ("(%p) -> %d\n", view, len);
 	return len;
 }
 
@@ -106,7 +107,7 @@ view_set_size (VIEW *view, int cols, int rows)
 	if (!view)
 		return;
 
-	printf ("%s (%p,%d,%d)\n", __FUNCTION__, view, cols, rows);
+	Tprintf ("(%p,%d,%d)\n", view, cols, rows);
 	view->cols = cols;
 	view->rows = rows;
 }
