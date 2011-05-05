@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <gtk/gtk.h>
+
 #include "view.h"
 
 /**
@@ -109,3 +111,26 @@ view_set_size (VIEW *view, int cols, int rows)
 	view->rows = rows;
 }
 
+/**
+ * view_add_window
+ */
+void
+view_add_window (VIEW *view, GtkWidget *window)
+{
+	if (!view || !window)
+		return;
+
+	view->windows = g_list_append (view->windows, window);
+}
+
+/**
+ * view_remove_window
+ */
+void
+view_remove_window (VIEW *view, GtkWidget *window)
+{
+	if (!view || !window)
+		return;
+
+	view->windows = g_list_remove (view->windows, window);
+}

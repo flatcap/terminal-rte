@@ -18,7 +18,18 @@ int   font_point = 11;
 int   font_width  = 9;
 int   font_height = 18;
 
-GtkWidget * window_create (int cols, int rows, int x, int y, VIEW *view);
+GtkWidget * window_create     (int cols, int rows, int x, int y, VIEW *view);
+void        window_invalidate (GtkWidget *window, VIEW *view);
+
+/**
+ * list_invalidate
+ */
+void
+list_invalidate (GtkWidget *window, VIEW *view)
+{
+	window_invalidate (window, view);
+}
+
 
 /**
  * file_read
@@ -114,16 +125,11 @@ event_button_press (GtkWidget *widget, GdkEventButton *button, VIEW *view)
 {
 	static int count = 0;
 	char buffer[64];
-	GdkRectangle rect = { 0, 0, view->cols*font_width, view->rows*font_height };
-	GdkRegion *region;
 
 	sprintf (buffer, "(%d) button press %d at (%.0f,%.0f) at %u", count++, button->button, button->x, button->y, button->time);
 	view_add_line (view, buffer);
 
-	region = gdk_region_rectangle (&rect);
-	gdk_window_invalidate_region (widget->window, region, TRUE);
-	gdk_region_destroy (region);
-
+	g_list_foreach (view->windows, (GFunc) list_invalidate, view);
 	return FALSE;
 }
 
@@ -188,6 +194,8 @@ event_expose (GtkWidget *widget, GdkEventExpose *event, VIEW *view)
 gboolean
 event_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *view)
 {
+	char buffer[64];
+
 	switch (key->keyval) {
 		case GDK_Escape:
 		case GDK_q:
@@ -195,16 +203,34 @@ event_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *view)
 			break;
 		case GDK_n:
 			window_create (view->cols, view->rows, -1, -1, view);
+			sprintf (buffer, "new window: %dx%d\n", view->cols, view->rows);
+			view_add_line (view, buffer);
+			g_list_foreach (view->windows, (GFunc) list_invalidate, view);
 			break;
 		case GDK_f:
 		case GDK_o:
 			file_choose (GTK_WINDOW (widget), view);
+			g_list_foreach (view->windows, (GFunc) list_invalidate, view);
 			break;
 	}
 
 	return FALSE;
 }
 
+
+/**
+ * window_invalidate
+ */
+void
+window_invalidate (GtkWidget *window, VIEW *view)
+{
+	GdkRectangle rect = { 0, 0, view->cols*font_width, view->rows*font_height };
+	GdkRegion *region;
+
+	region = gdk_region_rectangle (&rect);
+	gdk_window_invalidate_region (window->window, region, TRUE);
+	gdk_region_destroy (region);
+}
 
 /**
  * window_create
@@ -239,6 +265,7 @@ window_create (int cols, int rows, int x, int y, VIEW *view)
 
 	if (!view)
 		view = view_new (cols, rows);
+	view_add_window (view, window);
 
 	g_signal_connect_after (window,       "destroy",            G_CALLBACK (gtk_main_quit),      NULL);
 	g_signal_connect       (drawing_area, "expose-event",       G_CALLBACK (event_expose),       view);
