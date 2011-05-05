@@ -173,7 +173,7 @@ event_button_press (GtkWidget *widget, GdkEventButton *button, VIEW *view)
  * event_expose
  */
 gboolean
-event_expose (GtkWidget *widget, GdkEventExpose *event, VIEW *view)
+event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 {
 	cairo_t *cr;
 	PangoFontDescription *desc;
@@ -183,8 +183,10 @@ event_expose (GtkWidget *widget, GdkEventExpose *event, VIEW *view)
 	int lines = 0;
 	int i;
 	int offset = 0;
+	int len;
+	int line_count = 0;
 
-	cr = gdk_cairo_create (widget->window);
+	cr = gdk_cairo_create (drawing_area->window);
 
 	cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 1.0);
 	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
@@ -205,17 +207,43 @@ event_expose (GtkWidget *widget, GdkEventExpose *event, VIEW *view)
 	}
 	//printf ("offset = %d\n", offset);
 
+	pango_layout_set_wrap    (layout, PANGO_WRAP_CHAR);
+	pango_layout_set_width   (layout, pango_units_from_double (drawing_area->allocation.width));
+	//pango_layout_set_spacing (layout, pango_units_from_double (30));
+	//printf ("spacing = %d (%d)\n", pango_layout_get_spacing (layout), PANGO_PIXELS (pango_layout_get_spacing (layout)));
+
 	for (i = 0; i < view->rows; i++) {
 		text = view_get_line (view, i + offset);
 		//printf ("buffer = %s\n", text);
 		if (!text)
 			break;
 
-		cairo_move_to (cr, 0, i*font_height);
-		cairo_set_source_rgb (cr, 1.0, 1.0, 1.0);
+		len = strlen (text);
+		if (len > view->cols) {
+			//printf ("wrap: %s\nto:   %.*s\n", text, view->cols, text);
+		}
+
 		pango_layout_set_text (layout, text, -1);
+
+		if (1) {
+			PangoLayoutLine *pline = NULL;
+			PangoRectangle ink;
+			PangoRectangle logical;
+
+			pline = pango_layout_get_line_readonly (layout, 0);
+			pango_layout_line_get_pixel_extents (pline, &ink, &logical);
+			printf ("rect: ink (%d,%d,%d,%d), logical (%d,%d,%d,%d) - (%d,%d) - %d lines\n", ink.x, ink.y, ink.width, ink.height, logical.x, logical.y, logical.width, logical.height, logical.width / font_width, logical.height / font_height, pango_layout_get_line_count (layout));
+			//rect: ink (2,-11,385,14), logical (0,-14,387,18)
+			//int   font_width  = 9;
+			//int   font_height = 18;
+		}
+
+		cairo_move_to (cr, 0, line_count*font_height);
+		cairo_set_source_rgb (cr, 1.0, 1.0, 1.0);
 		pango_cairo_update_layout (cr, layout);
 		pango_cairo_show_layout (cr, layout);
+
+		line_count += pango_layout_get_line_count (layout);
 	}
 
 	g_object_unref (layout);
