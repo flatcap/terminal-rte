@@ -49,7 +49,7 @@ char_block (VIEW *view)
 
 	for (r = 0; r < view->rows; r++) {
 		for (c = 0; c < view->cols; c++) {
-			buffer[c] = 'A' + ((r + c) % 26);
+			buffer[c] = 'A' + ((r % 26) + (c / 50)) % 26;
 		}
 		view_add_line (view, buffer);
 	}
