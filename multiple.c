@@ -185,6 +185,7 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 	int offset = 0;
 	int len;
 	int line_count = 0;
+	GtkAllocation da_alloc;
 
 	cr = gdk_cairo_create (drawing_area->window);
 
@@ -207,8 +208,9 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 	}
 	//printf ("offset = %d\n", offset);
 
+	gtk_widget_get_allocation (drawing_area, &da_alloc);
 	pango_layout_set_wrap    (layout, PANGO_WRAP_CHAR);
-	pango_layout_set_width   (layout, pango_units_from_double (drawing_area->allocation.width));
+	pango_layout_set_width   (layout, pango_units_from_double (da_alloc.width));
 	//pango_layout_set_spacing (layout, pango_units_from_double (30));
 	//printf ("spacing = %d (%d)\n", pango_layout_get_spacing (layout), PANGO_PIXELS (pango_layout_get_spacing (layout)));
 
@@ -232,7 +234,7 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 
 			pline = pango_layout_get_line_readonly (layout, 0);
 			pango_layout_line_get_pixel_extents (pline, &ink, &logical);
-			printf ("rect: ink (%d,%d,%d,%d), logical (%d,%d,%d,%d) - (%d,%d) - %d lines\n", ink.x, ink.y, ink.width, ink.height, logical.x, logical.y, logical.width, logical.height, logical.width / font_width, logical.height / font_height, pango_layout_get_line_count (layout));
+			//printf ("rect: ink (%d,%d,%d,%d), logical (%d,%d,%d,%d) - (%d,%d) - %d lines\n", ink.x, ink.y, ink.width, ink.height, logical.x, logical.y, logical.width, logical.height, logical.width / font_width, logical.height / font_height, pango_layout_get_line_count (layout));
 			//rect: ink (2,-11,385,14), logical (0,-14,387,18)
 			//int   font_width  = 9;
 			//int   font_height = 18;
