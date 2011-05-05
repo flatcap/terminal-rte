@@ -200,19 +200,21 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 	pango_layout_set_font_description (layout, desc);
 	pango_font_description_free (desc);
 
+	gtk_widget_get_allocation (drawing_area, &da_alloc);
+	pango_layout_set_wrap  (layout, PANGO_WRAP_CHAR);
+	pango_layout_set_width (layout, pango_units_from_double (da_alloc.width));
+	//pango_layout_set_spacing (layout, pango_units_from_double (30));
+	//printf ("spacing = %d (%d)\n", pango_layout_get_spacing (layout), PANGO_PIXELS (pango_layout_get_spacing (layout)));
+
 	lines = view_get_length (view);
 	if (lines > view->rows) {
-		offset = lines - view->rows;
+		offset = lines - (da_alloc.height / font_height);	//view->rows;
 	} else {
 		offset = 0;
 	}
 	//printf ("offset = %d\n", offset);
-
-	gtk_widget_get_allocation (drawing_area, &da_alloc);
-	pango_layout_set_wrap    (layout, PANGO_WRAP_CHAR);
-	pango_layout_set_width   (layout, pango_units_from_double (da_alloc.width));
-	//pango_layout_set_spacing (layout, pango_units_from_double (30));
-	//printf ("spacing = %d (%d)\n", pango_layout_get_spacing (layout), PANGO_PIXELS (pango_layout_get_spacing (layout)));
+	printf ("drawing area is %d lines high\n", da_alloc.height / font_height);
+	printf ("view contains %d lines\n", lines);
 
 	for (i = 0; i < view->rows; i++) {
 		text = view_get_line (view, i + offset);
@@ -269,7 +271,7 @@ event_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *view)
 			break;
 		case GDK_n:
 			window_create (view->cols, view->rows, -1, -1, view);
-			sprintf (buffer, "new window: %dx%d\n", view->cols, view->rows);
+			sprintf (buffer, "new window: %dx%d", view->cols, view->rows);
 			view_add_line (view, buffer);
 			g_list_foreach (view->windows, (GFunc) list_invalidate, view);
 			break;
