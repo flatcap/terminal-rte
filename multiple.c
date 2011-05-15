@@ -5,7 +5,6 @@
 #include <fcntl.h>
 
 #include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
 
 #include "view.h"
 #include "debug.h"
@@ -187,7 +186,7 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 	int line_count = 0;
 	GtkAllocation da_alloc;
 
-	cr = gdk_cairo_create (drawing_area->window);
+	cr = gdk_cairo_create (gtk_widget_get_window (drawing_area));
 
 	cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 1.0);
 	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
@@ -265,22 +264,22 @@ event_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *view)
 	char buffer[64];
 
 	switch (key->keyval) {
-		case GDK_Escape:
-		case GDK_q:
+		case 0xFF1B:	// Escape
+		case 'q':
 			gtk_main_quit();
 			break;
-		case GDK_n:
+		case 'n':
 			window_create (view->cols, view->rows, -1, -1, view);
 			sprintf (buffer, "new window: %dx%d", view->cols, view->rows);
 			view_add_line (view, buffer);
 			g_list_foreach (view->windows, (GFunc) list_invalidate, view);
 			break;
-		case GDK_f:
-		case GDK_o:
+		case 'f':
+		case 'o':
 			file_choose (GTK_WINDOW (widget), view);
 			g_list_foreach (view->windows, (GFunc) list_invalidate, view);
 			break;
-		case GDK_b:
+		case 'b':
 			char_block (view);
 			g_list_foreach (view->windows, (GFunc) list_invalidate, view);
 			break;
@@ -296,12 +295,12 @@ event_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *view)
 void
 window_invalidate (GtkWidget *window, VIEW *view)
 {
-	GdkRectangle rect = { 0, 0, view->cols*font_width, view->rows*font_height };
-	GdkRegion *region;
+	cairo_rectangle_int_t rect = { 0, 0, view->cols*font_width, view->rows*font_height };
+	cairo_region_t *region = NULL;
 
-	region = gdk_region_rectangle (&rect);
-	gdk_window_invalidate_region (window->window, region, TRUE);
-	gdk_region_destroy (region);
+	region = cairo_region_create_rectangle (&rect);
+	gdk_window_invalidate_region (gtk_widget_get_window (window), region, TRUE);
+	cairo_region_destroy (region);
 }
 
 /**
@@ -314,7 +313,7 @@ window_create (int cols, int rows, int x, int y, VIEW *view)
 	GtkWidget *drawing_area = NULL;
 	GtkWidget *hbox         = NULL;
 	GtkWidget *vscr         = NULL;
-	GtkObject *adj          = NULL;
+	GtkAdjustment *adj      = NULL;
 	int        width        = 800;
 	int        height       = 500;
 
@@ -351,7 +350,7 @@ window_create (int cols, int rows, int x, int y, VIEW *view)
 	g_signal_connect_after (window,       "destroy",            G_CALLBACK (gtk_main_quit),      NULL);
 	g_signal_connect       (window,       "button-press-event", G_CALLBACK (event_button_press), view);
 	g_signal_connect       (window,       "key-press-event",    G_CALLBACK (event_key_press),    view);
-	g_signal_connect       (drawing_area, "expose-event",       G_CALLBACK (event_expose),       view);
+	g_signal_connect       (drawing_area, "draw",               G_CALLBACK (event_expose),       view);
 	g_signal_connect       (drawing_area, "configure-event",    G_CALLBACK (event_frame),        view);
 
 	if ((x > 0) && (y > 0))
