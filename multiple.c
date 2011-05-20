@@ -180,11 +180,13 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 	PangoLayout *layout;
 	char *text = NULL;
 	int lines = 0;
+	int cols = 0;
 	int i;
 	int offset = 0;
 	int len;
 	int line_count = 0;
 	GtkAllocation da_alloc;
+	int wrap_count = 0;
 
 	cr = gdk_cairo_create (gtk_widget_get_window (drawing_area));
 
@@ -211,9 +213,60 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 	} else {
 		offset = 0;
 	}
-	//printf ("offset = %d\n", offset);
+
+	/* notes:
+	 *   always draw one character (prevent div by zero)
+	 */
+
+	/* options:
+	 *   wrap on / off
+	 *   follow on / off (i.e. is the window following the current output?)
+	 *
+	 *   if follow is on, start drawing from the bottom
+	 *   if follow if off, start drawing from the top
+	 *   follow=on if keypress, or scrollbar at bottom
+	 */
+
+	/* calculate wrap_count:
+	 * how many more lines to skip due to wrapping of text
+	 * the screen is ROWS high so look at the last ROWS of the view
+	 * wrap_count = number of rows that need wrapping
+	 * not quite
+	 * number of rows it would take to display - number of rows in the view
+	 * if wrap_count = 6, ignore that many lines from the top of the view.
+	 */
+
+	/* drawing (follow=on)
+	 * start at the bottom
+	 * for each row calculate how many lines it requires
+	 * draw lines (start may be negative (off the top of the screen)
+	 * continue until screen is full (or end of view)
+	 */
+
+	/* drawing (follow=off)
+	 * start at the top
+	 * for each row calculate how many lines it requires
+	 * draw lines (last row may be truncated)
+	 * continue until screen is full (or end of view)
+	 */
+
+
+	cols = da_alloc.width / font_width;
+	//printf ("view contains %d cols, %d rows\n", cols, lines);
+	for (i = 0; i < view->rows; i++) {
+		int tmp = 0;
+		text = view_get_line (view, i + offset);
+		if (!text)
+			break;
+		len = strlen (text);
+		tmp = (len+cols-1) / cols; /* round up */
+		wrap_count += tmp;
+	}
+	wrap_count -= lines;
+	printf ("offset = %d, wrap_count = %d\n", offset, wrap_count);
+#if 0
 	printf ("drawing area is %d lines high\n", da_alloc.height / font_height);
-	printf ("view contains %d lines\n", lines);
+#endif
 
 	for (i = 0; i < view->rows; i++) {
 		text = view_get_line (view, i + offset);
@@ -254,6 +307,7 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 	cairo_destroy (cr);
 	return FALSE;
 }
+
 
 /**
  * event_key_press
