@@ -1,4 +1,4 @@
-// gcc -Wall -o window_resize{,.c} -lcurses
+// gcc -Wall -o term_resize{,.c} -lcurses
 
 #include <stdio.h>
 #include <unistd.h>
