@@ -181,6 +181,8 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 	char *text = NULL;
 	int lines = 0;
 	int cols = 0;
+	int rows = 0;
+	int start_row = 0;
 	int i;
 	int offset = 0;
 	int len;
@@ -207,9 +209,14 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 	//pango_layout_set_spacing (layout, pango_units_from_double (30));
 	//printf ("spacing = %d (%d)\n", pango_layout_get_spacing (layout), PANGO_PIXELS (pango_layout_get_spacing (layout)));
 
+	cols = da_alloc.width / font_width;
+	if (cols == 0)
+		cols = 1;		// Alway print something
+
+	rows = da_alloc.height / font_height;		// view->rows
 	lines = view_get_length (view);
 	if (lines > view->rows) {
-		offset = lines - (da_alloc.height / font_height);	//view->rows;
+		offset = lines - rows;
 	} else {
 		offset = 0;
 	}
@@ -252,7 +259,6 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 	 */
 
 
-	cols = da_alloc.width / font_width;
 	//printf ("view contains %d cols, %d rows\n", cols, lines);
 	for (i = 0; i < view->rows; i++) {
 		int tmp = 0;
@@ -264,11 +270,16 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 		wrap_count += tmp;
 	}
 	wrap_count -= lines;
-	printf ("offset = %d, wrap_count = %d\n", offset, wrap_count);
+	//printf ("offset = %d, wrap_count = %d\n", offset, wrap_count);
+	start_row = rows - (lines + wrap_count);
+	if (start_row > 0)
+		start_row = 0;
+	printf ("rows = %d, lines = %d, offset = %d, wrap_count = %d, start_row = %d\n", rows, lines, offset, wrap_count, start_row);
 #if 0
 	printf ("drawing area is %d lines high\n", da_alloc.height / font_height);
 #endif
 
+	line_count = start_row;
 	for (i = 0; i < view->rows; i++) {
 		text = view_get_line (view, i + offset);
 		//printf ("buffer = %s\n", text);
