@@ -1,8 +1,11 @@
+#ifdef DETAB_MAIN
 #include <stdio.h>
 #include <string.h>
+#endif
 
 void
-detab (char *in, char *out, int max_len) {
+detab (char *in, char *out, int max_len)
+{
 	int i = 0;
 	while (*in && i < max_len - 1) {
 		if (*in == '\t') {
@@ -16,9 +19,10 @@ detab (char *in, char *out, int max_len) {
 		}
 	}
 
-    out[i] = 0;
+	out[i] = 0;
 }
 
+#ifdef DETAB_MAIN
 int
 main (int argc, char *argv[])
 {
@@ -40,4 +44,5 @@ main (int argc, char *argv[])
 
 	return 0;
 }
+#endif
 

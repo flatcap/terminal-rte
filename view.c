@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <gtk/gtk.h>
 
 #include "view.h"
 #include "debug.h"
+#include "detab.h"
 
 /**
  * view_new
@@ -93,10 +95,18 @@ char *
 view_get_line (VIEW *view, int line)
 {
 	char *data = NULL;
+	char buffer[256];
 
 	if (!view || !view->data)
 		return NULL;
-	return cache_get_line (view->cache, line); // XXX for now
+
+	data = cache_get_line (view->cache, line); // XXX for now
+	if (!data)
+		return NULL;
+	detab (data, buffer, sizeof (buffer));
+	//printf ("buffer = >>%s<<\n", buffer);
+	return strdup (buffer);
+
 	if ((line < 0) || (line >= view->rows))
 		return NULL;
 
