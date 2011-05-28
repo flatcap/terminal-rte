@@ -216,6 +216,7 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 
 	/* notes:
 	 *   always draw one character (prevent div by zero)
+	 *   strlen won't work because we have tab chars
 	 */
 
 	/* options:

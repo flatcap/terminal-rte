@@ -38,6 +38,8 @@ usage (void)
 		"    -w, --winsize COLSxROWS\n"
 		"    -r, --wrap {on|off}\n"
 		"    -h, --help\n");
+	// --random
+	// --seed
 }
 
 /**
