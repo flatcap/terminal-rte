@@ -11,6 +11,10 @@ typedef struct
 	int rows;
 	CACHE *cache;
 	GList *windows;
+
+	// Our unpacked copy of the data (no tabs)
+	int offset;
+	char **data;
 } VIEW;
 
 VIEW * view_new           (int cols, int rows);

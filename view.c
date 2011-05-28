@@ -29,6 +29,9 @@ view_new (int cols, int rows)
 	view->rows  = rows;
 	view->cache = cache;
 
+	view->offset = 0;
+	view->data   = calloc (rows, sizeof (char *));
+
 	Tprintf ("(%d,%d) -> %p\n", cols, rows, view);
 	return view;
 }
@@ -39,7 +42,20 @@ view_new (int cols, int rows)
 void
 view_free (VIEW *view)
 {
+	int i = 0;
+
+	if (!view)
+		return;
+
 	Tprintf ("(%p)\n", view);
+
+	if (view->data) {
+		for (i = 0; i < view->rows; i++) {
+			free (view->data[i]);
+		}
+		free (view->data);
+	}
+
 	free (view);
 }
 
@@ -76,11 +92,23 @@ view_dump (VIEW *view)
 char *
 view_get_line (VIEW *view, int line)
 {
-	if (!view)
+	char *data = NULL;
+
+	if (!view || !view->data)
+		return NULL;
+	return cache_get_line (view->cache, line); // XXX for now
+	if ((line < 0) || (line >= view->rows))
 		return NULL;
 
 	Tprintf ("(%p,%d)\n", view, line);
-	return cache_get_line (view->cache, line);
+
+	if (!view->data[line]) {		// We don't have a copy of that line
+		data = cache_get_line (view->cache, line);
+		// detab data
+		view->data[line] = data;
+	}
+
+	return view->data[line];
 }
 
 /**
@@ -104,10 +132,27 @@ view_get_length (VIEW *view)
 void
 view_set_size (VIEW *view, int cols, int rows)
 {
-	if (!view)
+	int i = 0;
+
+	if (!view || !view->data)
 		return;
 
 	Tprintf ("(%p,%d,%d)\n", view, cols, rows);
+
+	if (rows > view->rows) {
+		// bigger
+		view->data = realloc (view->data, rows * sizeof (char *));
+		for (i = view->rows; i < rows; i++) {
+			view->data[i] = NULL;
+		}
+	} else if (rows < view->rows) {
+		// smaller
+		for (i = rows; i < view->rows; i++) {
+			free (view->data[i]);
+		}
+		view->data = realloc (view->data, rows * sizeof (char *));
+	}
+
 	view->cols = cols;
 	view->rows = rows;
 }
