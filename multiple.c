@@ -355,6 +355,53 @@ event_key_press (GtkWidget *widget, GdkEventKey *key, VIEW *view)
 
 
 /**
+ * event_scroll_adjust
+ */
+void event_scroll_adjust (GtkRange *range, gdouble value, gpointer user_data)
+{
+	printf ("%s: value = %f\n", __FUNCTION__, value);
+}
+
+/**
+ * event_scroll_change
+ */
+gboolean event_scroll_change (GtkRange *range, GtkScrollType scroll, gdouble value, gpointer user_data)
+{
+	char *st = NULL;
+
+	switch (scroll) {
+		case GTK_SCROLL_JUMP:          st = "jump";          break;
+		case GTK_SCROLL_STEP_BACKWARD: st = "step_backward"; break;
+		case GTK_SCROLL_STEP_FORWARD:  st = "step_forward";  break;
+		case GTK_SCROLL_PAGE_BACKWARD: st = "page_backward"; break;
+		case GTK_SCROLL_PAGE_FORWARD:  st = "page_forward";  break;
+		case GTK_SCROLL_STEP_UP:       st = "step_up";       break;
+		case GTK_SCROLL_STEP_DOWN:     st = "step_down";     break;
+		case GTK_SCROLL_PAGE_UP:       st = "page_up";       break;
+		case GTK_SCROLL_PAGE_DOWN:     st = "page_down";     break;
+		case GTK_SCROLL_STEP_LEFT:     st = "step_left";     break;
+		case GTK_SCROLL_STEP_RIGHT:    st = "step_right";    break;
+		case GTK_SCROLL_PAGE_LEFT:     st = "page_left";     break;
+		case GTK_SCROLL_PAGE_RIGHT:    st = "page_right";    break;
+		case GTK_SCROLL_START:         st = "start";         break;
+		case GTK_SCROLL_END:           st = "end";           break;
+		case GTK_SCROLL_NONE:
+		default:                       st = "none";          break;
+	}
+	printf ("%s: value = %f, scroll type = %s\n", __FUNCTION__, value, st);
+	return FALSE;
+}
+
+/**
+ * event_scroll_value
+ */
+void event_scroll_value (GtkRange *range, gpointer user_data)
+{
+	printf ("%s\n", __FUNCTION__);
+}
+
+
+/**
  * window_invalidate
  */
 void
@@ -417,6 +464,10 @@ window_create (int cols, int rows, int x, int y, VIEW *view)
 	g_signal_connect       (window,       "key-press-event",    G_CALLBACK (event_key_press),    view);
 	g_signal_connect       (drawing_area, "draw",               G_CALLBACK (event_expose),       view);
 	g_signal_connect       (drawing_area, "configure-event",    G_CALLBACK (event_frame),        view);
+
+	g_signal_connect (vscr, "adjust-bounds", G_CALLBACK (event_scroll_adjust), NULL);
+	g_signal_connect (vscr, "change-value",  G_CALLBACK (event_scroll_change), NULL);
+	g_signal_connect (vscr, "value-changed", G_CALLBACK (event_scroll_value),  NULL);
 
 	if ((x > 0) && (y > 0))
 		gtk_window_move (GTK_WINDOW (window), x, y);
