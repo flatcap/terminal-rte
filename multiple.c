@@ -8,6 +8,7 @@
 
 #include "view.h"
 #include "debug.h"
+#include "options.h"
 
 #define NUM_ROWS	20
 #define NUM_COLS	50
@@ -436,6 +437,11 @@ window_create (int cols, int rows, int x, int y, VIEW *view)
 int
 main (int argc, char **argv)
 {
+	if (!parse_options (argc, argv))
+		return 1;
+
+	dump_options (&opts);
+
 	gtk_init (&argc, &argv);
 
 	window_create (NUM_COLS, NUM_ROWS, -1, -1, NULL);

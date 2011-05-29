@@ -1,6 +1,6 @@
 CC	= gcc
 PROGS	= multiple # window_resize rte term_resize simple_terminal
-OBJ	= view.o cache.o list.o debug.o detab.o
+OBJ	= cache.o debug.o detab.o list.o options.o view.o
 CFLAGS	= -g -Wall
 
 CFLAGS  += `pkg-config ncurses gtk+-3.0 --cflags`
