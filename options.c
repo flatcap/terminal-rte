@@ -90,8 +90,8 @@ parse_options (int argc, char *argv[])
 	char *end = NULL;
 
 	/* Defaults */
-	opts.font_face  = "monospace";
-	opts.font_point = 11;
+	opts.font_face  = "Liberation Mono";
+	opts.font_point = 14;
 
 	opterr = 0; /* We'll handle the errors, thank you. */
 

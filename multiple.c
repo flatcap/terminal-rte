@@ -13,9 +13,6 @@
 #define NUM_ROWS	20
 #define NUM_COLS	50
 
-char *font_face  = "monospace";
-int   font_point = 11;
-
 int   font_width  = 9;
 int   font_height = 18;
 
@@ -190,6 +187,8 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 	int line_count = 0;
 	GtkAllocation da_alloc;
 	int wrap_count = 0;
+	char *font_face  = "Liberation Mono";
+	int   font_point = 14;
 
 	cr = gdk_cairo_create (gtk_widget_get_window (drawing_area));
 
@@ -320,7 +319,6 @@ event_expose (GtkWidget *drawing_area, GdkEventExpose *event, VIEW *view)
 	cairo_destroy (cr);
 	return FALSE;
 }
-
 
 /**
  * event_key_press
