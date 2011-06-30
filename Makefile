@@ -1,5 +1,5 @@
 CC	= gcc
-PROGS	= multiple # window_resize rte term_resize simple_terminal
+PROGS	= multiple rte simple_terminal
 OBJ	= cache.o debug.o detab.o list.o options.o view.o
 CFLAGS	= -g -Wall
 

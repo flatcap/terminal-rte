@@ -198,7 +198,7 @@ main (int argc, char *argv[])
 
 			rte_clean_env();
 
-			execl ("/home/terminal/readline/bash/bash", "RASH", "--norc", "--noprofile", NULL);
+			execl ("/home/work/terminal/readline/bash/bash", "RASH", "--norc", "--noprofile", NULL);
 			break;
 		default: /* parent */
 			memset (&sig_new, 0, sizeof (sig_new));
