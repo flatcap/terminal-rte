@@ -6,7 +6,3 @@
 /multiple
 /Session.vim
 
-# junk
-.*swp
-*.o
-tags
